@@ -26,11 +26,19 @@ public class EventService {
     @Autowired
     private EventRepository eventRepository;
 
+    @Autowired
+    private CityRepository cityRepository;
+
     @Transactional
     public EventDTO update(Long id, EventDTO dto) {
         try {
             Event entity = eventRepository.getReferenceById(id);
-            copyDtoToEntity(dto, entity);
+
+            entity.setDate(dto.getDate());
+            entity.setName(dto.getName());
+            entity.setUrl(dto.getUrl());
+            entity.setCity(cityRepository.getReferenceById(dto.getCityId()));
+
             entity = eventRepository.save(entity);
             return new EventDTO(entity);
         }
@@ -38,13 +46,4 @@ public class EventService {
             throw new ResourceNotFoundException("Id not found " + id);
         }
     }
-
-    private void copyDtoToEntity(EventDTO dto, Event entity) {
-        entity.setName(dto.getName());
-        entity.setDate(dto.getDate());
-        entity.setUrl(dto.getUrl());
-        entity.setCity(new City(dto.getCityId(), null));
-
-    }
-
 }
